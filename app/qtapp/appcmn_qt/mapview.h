@@ -6,6 +6,7 @@
 #include <QTimer>
 
 #define NUM_MARK 256
+#define MAXMAPSRC 12                    /* number of configurable tile sources */
 
 namespace Ui {
 class MapView;
@@ -27,18 +28,32 @@ class MapViewPageState : public QObject
 public:
     explicit MapViewPageState(QObject *parent = NULL): QObject(parent){}
     QString getText() {return text;}
+    QString getBasemap() {return basemap;}
+
+public slots:
+    void setBasemap(const QString &name)
+    {
+        if (basemap == name) return;
+        basemap = name;
+        emit basemapChanged(name);
+    }
 
 signals:
     void textChanged(const QString &text);
+    void basemapChanged(const QString &name);
 
 private:
     QString text;
+    QString basemap;
 };
 
 //---------------------------------------------------------------------------
 class MapView : public QDialog
 {
     Q_OBJECT
+
+protected:
+    void resizeEvent(QResizeEvent *);
 
 protected slots:
     void zoomOut();
@@ -61,9 +76,12 @@ private:
     QWebChannel *webChannel;
     bool loaded;
 
-    QString mapStrings[6][3];
+    QString mapStrings[MAXMAPSRC][3];
     int selectedMap;
     QString apiKey;
+    bool autoMaxZoom;               /* open the map at the maximum zoom level */
+    QString selectedBasemap;        /* name of the basemap chosen last time */
+    QString mapDatums[MAXMAPSRC];    /* coordinate datum of each tile source */
 
     double center_latitude, center_longitude;
     int markState[NUM_MARK];

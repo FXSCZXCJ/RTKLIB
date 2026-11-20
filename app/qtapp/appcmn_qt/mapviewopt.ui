@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>792</width>
-    <height>420</height>
+    <width>1080</width>
+    <height>560</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,242 @@
       <string>Leaflet Map Tiles</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="5" column="0">
+      <item row="0" column="2">
+       <widget class="QLabel" name="labelDatum">
+        <property name="text">
+         <string>Datum</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QComboBox" name="cmbDatum1">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QComboBox" name="cmbDatum2">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QComboBox" name="cmbDatum3">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QComboBox" name="cmbDatum4">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QComboBox" name="cmbDatum5">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+      <item row="6" column="2">
+       <widget class="QComboBox" name="cmbDatum6">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+      <item row="7" column="2">
+       <widget class="QComboBox" name="cmbDatum7">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+      <item row="8" column="2">
+       <widget class="QComboBox" name="cmbDatum8">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+      <item row="9" column="2">
+       <widget class="QComboBox" name="cmbDatum9">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+      <item row="10" column="2">
+       <widget class="QComboBox" name="cmbDatum10">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+      <item row="11" column="2">
+       <widget class="QComboBox" name="cmbDatum11">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+      <item row="12" column="2">
+       <widget class="QComboBox" name="cmbDatum12">
+        <item>
+         <property name="text">
+          <string>WGS-84</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GCJ-02</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BD-09</string>
+         </property>
+        </item>
+        </widget>
+      </item>
+            <item row="5" column="0">
        <widget class="QLineEdit" name="lEMapTitle5"/>
       </item>
       <item row="0" column="1">
@@ -77,7 +312,50 @@
       <item row="6" column="1">
        <widget class="QLineEdit" name="lEMapTile6"/>
       </item>
-     </layout>
+     <item row="7" column="0">
+       <widget class="QLineEdit" name="lEMapTitle7"/>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLineEdit" name="lEMapTile7"/>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLineEdit" name="lEMapTitle8"/>
+      </item>
+      <item row="8" column="1">
+       <widget class="QLineEdit" name="lEMapTile8"/>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLineEdit" name="lEMapTitle9"/>
+      </item>
+      <item row="9" column="1">
+       <widget class="QLineEdit" name="lEMapTile9"/>
+      </item>
+      <item row="10" column="0">
+       <widget class="QLineEdit" name="lEMapTitle10"/>
+      </item>
+      <item row="10" column="1">
+       <widget class="QLineEdit" name="lEMapTile10"/>
+      </item>
+      <item row="11" column="0">
+       <widget class="QLineEdit" name="lEMapTitle11"/>
+      </item>
+      <item row="11" column="1">
+       <widget class="QLineEdit" name="lEMapTile11"/>
+      </item>
+      <item row="12" column="0">
+       <widget class="QLineEdit" name="lEMapTitle12"/>
+      </item>
+      <item row="12" column="1">
+       <widget class="QLineEdit" name="lEMapTile12"/>
+      </item>
+      </layout>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QCheckBox" name="chkAutoMaxZoom">
+     <property name="text">
+      <string>Open at maximum zoom level</string>
+     </property>
     </widget>
    </item>
    <item row="8" column="0">

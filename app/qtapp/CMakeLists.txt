@@ -28,11 +28,11 @@ find_package(
     WebKitWidgets
     LinguistTools
 )
-if((${Qt5WebEngineWidgets_FOUND}) OR (${Qt6WebEngineWidgets_FOUND}))
+if(TARGET Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
    message(STATUS "Qt: Found optional QtWebEngine")
    add_definitions(-DQWEBENGINE)
 else()
-   if((${Qt5WebKitWidgets_FOUND}) OR (${Qt6WebKitWidgets_FOUND}))
+   if(TARGET Qt${QT_VERSION_MAJOR}::WebKitWidgets)
       message(STATUS "Qt: Found optional QtWebKit")
       add_definitions(-DQWEBKIT)
    endif()
@@ -47,7 +47,13 @@ if((${QT_VERSION_MAJOR} EQUAL 6) AND (${Qt6LinguistTools_FOUND}))
    # add translation support, zh_CN for Chinese
    set(LANGUAGES en de zh_CN)
    message(STATUS "Qt: Adding translation: ${LANGUAGES}")
-   qt_standard_project_setup(I18N_TRANSLATED_LANGUAGES ${LANGUAGES})
+   if(QT_VERSION GREATER_EQUAL 6.7)
+       qt_standard_project_setup(I18N_TRANSLATED_LANGUAGES ${LANGUAGES})
+   else()
+       # Qt 6.5 has no I18N_TRANSLATED_LANGUAGES; translations are handled
+       # explicitly by qt_add_lrelease/qt_add_resources in each app.
+       qt_standard_project_setup()
+   endif()
 endif()
 
 if(QT_VERSION_MAJOR GREATER_EQUAL 6)

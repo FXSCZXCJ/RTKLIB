@@ -477,6 +477,36 @@ Copyright (C) 2016-2025 Jens Reimann</source>
 <context>
     <name>MapViewOpt</name>
     <message>
+        <location filename="../appcmn_qt/mapviewopt.ui" line="355"/>
+        <source>Open at maximum zoom level</source>
+        <translation>打开时使用最大缩放级别</translation>
+    </message>
+    <message>
+        <location filename="../appcmn_qt/mapviewopt.ui" line="30"/>
+        <source>Datum</source>
+        <translation>坐标系</translation>
+    </message>
+    <message>
+        <location filename="../appcmn_qt/mapviewopt.ui" line="80"/>
+        <source>Coordinates</source>
+        <translation>坐标系</translation>
+    </message>
+    <message>
+        <location filename="../appcmn_qt/mapviewopt.ui" line="80"/>
+        <source>Point datum</source>
+        <translation>轨迹点坐标系</translation>
+    </message>
+    <message>
+        <location filename="../appcmn_qt/mapviewopt.ui" line="80"/>
+        <source>WGS-84 (GPS, Google/OSM)</source>
+        <translation>WGS-84（GPS / 谷歌 / OSM）</translation>
+    </message>
+    <message>
+        <location filename="../appcmn_qt/mapviewopt.ui" line="80"/>
+        <source>GCJ-02 (Amap/Tencent, Mars)</source>
+        <translation>GCJ-02（火星坐标 / 高德 / 腾讯）</translation>
+    </message>
+    <message>
         <location filename="../appcmn_qt/mapviewopt.ui" line="14"/>
         <source>Map View Options</source>
         <translation>地图视图选项</translation>

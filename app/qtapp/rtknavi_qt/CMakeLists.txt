@@ -62,12 +62,15 @@ add_executable(rtknavi_qt
     ../appcmn_qt/appcmn_qt.qrc
     ../icon/resources.qrc
 
-)
+
+    rtknavi_qt.rc)
 if(QT_VERSION GREATER_EQUAL 6.5)
-        qt_add_translations(rtknavi_qt
-		SOURCE_TARGETS rtknavi_qt
-		INCLUDE_DIRECTORIES . ..appcmn_qt
-        )
+        qt_add_lrelease(rtknavi_qt TS_FILES rtklib_zh_CN.ts
+                        QM_FILES_OUTPUT_VARIABLE rtknavi_qt_qm)
+        # the .qm lives in the build dir, so force a flat resource alias
+        set_source_files_properties(${rtknavi_qt_qm} PROPERTIES
+                        QT_RESOURCE_ALIAS "rtklib_zh_CN.qm")
+        qt_add_resources(rtknavi_qt "i18n" PREFIX "/i18n" FILES ${rtknavi_qt_qm})
 endif()
 target_link_libraries(rtknavi_qt PRIVATE
         rtklib

@@ -61,12 +61,15 @@ add_executable(rtkplot_qt
     ../appcmn_qt/appcmn_qt.qrc
     ../icon/resources.qrc
 
-)
+
+    rtkplot_qt.rc)
 if(QT_VERSION GREATER_EQUAL 6.5)
-	qt_add_translations(rtkplot_qt 
-		SOURCE_TARGETS rtkplot_qt
-		INCLUDE_DIRECTORIES . ..appcmn_qt
-	)
+	qt_add_lrelease(rtkplot_qt TS_FILES rtklib_zh_CN.ts
+                        QM_FILES_OUTPUT_VARIABLE rtkplot_qt_qm)
+        # the .qm lives in the build dir, so force a flat resource alias
+        set_source_files_properties(${rtkplot_qt_qm} PROPERTIES
+                        QT_RESOURCE_ALIAS "rtklib_zh_CN.qm")
+        qt_add_resources(rtkplot_qt "i18n" PREFIX "/i18n" FILES ${rtkplot_qt_qm})
 endif()
 target_link_libraries(rtkplot_qt PRIVATE
         rtklib
@@ -77,7 +80,7 @@ target_link_libraries(rtkplot_qt PRIVATE
 	Qt${QT_VERSION_MAJOR}::SerialPort
 )
 
-if((${Qt5WebEngineWidgets_FOUND}) OR (${Qt6WebEngineWidgets_FOUND}))
+if(TARGET Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
    target_link_libraries(rtkplot_qt PRIVATE Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
 else()
   if((${Qt5WebKitWidgets_FOUND}) OR (${Qt6WebKitWidgets_FOUND}))

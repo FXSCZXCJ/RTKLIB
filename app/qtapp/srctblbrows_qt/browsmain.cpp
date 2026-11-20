@@ -100,7 +100,7 @@ MainForm::MainForm(QWidget *parent)
     QFileInfo prg_fileinfo(prg_filename);
     iniFile = prg_fileinfo.absoluteDir().filePath(prg_fileinfo.baseName() + ".ini");
 
-    mapView = new MapView(this);
+    mapView = new MapView(nullptr);   /* top-level so moving the main window cannot affect it */
     staListDialog = new StaListDialog(this);
     loadTimer = new QTimer(this);
     mountPointDialog = new MntpOptDialog(this);

@@ -211,7 +211,7 @@ Plot::Plot(QWidget *parent) : QMainWindow(parent), ui(new Ui::Plot)
     vecMapDialog = new VecMapDialog(this, this);
     freqDialog = new FreqDialog(this);
     mapOptDialog = new MapOptDialog(this, this);
-    mapView = new MapView(this);
+    mapView = new MapView(nullptr);   /* top-level so moving the main window cannot affect it */
     spanDialog = new SpanDialog(this);
     connectDialog = new ConnectDialog(this);
     skyImgDialog = new SkyImgDialog(this);
@@ -397,6 +397,8 @@ Plot::~Plot()
     delete tVdirectorySelector;
 
     delete navigation;
+
+    delete mapView;
 }
 // callback on all events ----------------------------------------------------
 bool Plot::eventFilter(QObject *obj, QEvent *event)
@@ -594,6 +596,8 @@ void Plot::showEvent(QShowEvent *event)
 void Plot::closeEvent(QCloseEvent *)
 {
     trace(3, "closeEvent\n");
+
+    if (mapView) mapView->close();
 
     lWRangeList->hide();
 
@@ -1186,16 +1190,31 @@ void Plot::arrangePlotMapViewHorizontally()
 {
     // arrange main window and map window side-by-side
     QScreen *scr = QApplication::screens().at(0);
+    if (!scr) return;
+
     QRect rect = scr->availableGeometry();
-    QSize thisDecoration = this->frameSize() - this->size();
+    const int half = rect.width() / 2;
 
-    this->setGeometry(rect.x(), rect.y(), rect.width() / 2 - thisDecoration.width(), rect.height() - thisDecoration.height());
+    // leave maximised state first, otherwise resize() is ignored
+    this->showNormal();
+    mapView->showNormal();
+    mapView->show();
+    QCoreApplication::processEvents();
 
-    QSize MapDecoration = mapView->frameSize() - mapView->size();
-    mapView->setGeometry(rect.x() + rect.width() / 2, rect.y(),
-                         rect.width()/2 - MapDecoration.width(), rect.height() - MapDecoration.height());
+    // setGeometry()/resize() size the client area, so subtract the frame
+    // decorations (borders + title bar); move() positions the frame itself,
+    // which keeps the title bars on screen.
+    QSize thisDeco = this->frameGeometry().size() - this->size();
+    QSize mapDeco  = mapView->frameGeometry().size() - mapView->size();
 
-    mapView->setVisible(true);
+    this->move(rect.x(), rect.y());
+    this->resize(qMax(480, half - thisDeco.width()),
+                 qMax(320, rect.height() - thisDeco.height()));
+
+    mapView->move(rect.x() + half, rect.y());
+    mapView->resize(qMax(480, half - mapDeco.width()),
+                    qMax(320, rect.height() - mapDeco.height()));
+    mapView->raise();
 }
 //---------------------------------------------------------------------------
 #ifdef RTK_DISABLED
@@ -2317,7 +2336,8 @@ void Plot::updateEnable()
     ui->menuConnect->setChecked(connectState);
     ui->btnSolution1->setEnabled(true);
     ui->btnSolution2->setEnabled(plotType <= PLOT_SDOP || plotType == PLOT_RES || plotType == PLOT_RESE);
-    ui->btnSolution12->setEnabled(!connectState && plotType <= PLOT_SOLA && solutionData[0].n > 0 && solutionData[1].n > 0);
+    /* the combined view must stay available while streaming two live streams */
+    ui->btnSolution12->setEnabled(plotType <= PLOT_SOLA && solutionData[0].n > 0 && solutionData[1].n > 0);
 
     // combo boxes
     ui->cBQFlag->setVisible(plotType == PLOT_TRK || plotType == PLOT_SOLP ||

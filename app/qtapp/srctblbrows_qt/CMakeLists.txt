@@ -24,12 +24,15 @@ add_executable(srctblbrows_qt
     ../appcmn_qt/appcmn_qt.qrc
     ../icon/resources.qrc
 
-)
+
+    srctblbrows_qt.rc)
 if(QT_VERSION GREATER_EQUAL 6.5)
-        qt_add_translations(TARGETS srctblbrows_qt
-		SOURCE_TARGETS srctblbrows_qt
-		INCLUDE_DIRECTORIES . ..appcmn_qt
-        )
+        qt_add_lrelease(srctblbrows_qt TS_FILES rtklib_zh_CN.ts
+                        QM_FILES_OUTPUT_VARIABLE srctblbrows_qt_qm)
+        # the .qm lives in the build dir, so force a flat resource alias
+        set_source_files_properties(${srctblbrows_qt_qm} PROPERTIES
+                        QT_RESOURCE_ALIAS "rtklib_zh_CN.qm")
+        qt_add_resources(srctblbrows_qt "i18n" PREFIX "/i18n" FILES ${srctblbrows_qt_qm})
 endif()
 target_link_libraries(srctblbrows_qt PRIVATE
         rtklib
@@ -39,7 +42,7 @@ target_link_libraries(srctblbrows_qt PRIVATE
 	Qt${QT_VERSION_MAJOR}::Concurrent
 )
 
-if((${Qt5WebEngineWidgets_FOUND}) OR (${Qt6WebEngineWidgets_FOUND}))
+if(TARGET Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
    target_link_libraries(srctblbrows_qt PRIVATE Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
 else()
   if((${Qt5WebKitWidgets_FOUND}) OR (${Qt6WebKitWidgets_FOUND}))

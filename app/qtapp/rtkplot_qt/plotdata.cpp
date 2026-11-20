@@ -1124,9 +1124,16 @@ void Plot::connectStream()
         setWindowTitle(tr("CONNECT %1 %2").arg(name[0], name[1]));
 
     ui->btnConnect->setChecked(true);
-    ui->btnSolution1->setChecked(!name[0].isEmpty());
-    ui->btnSolution2->setChecked(!name[1].isEmpty());
-    ui->btnSolution12->setChecked(false);
+    /* both streams live: show both.  Showing "both" must go through
+     * btnSolution12, because the sel logic treats Solution1 AND Solution2
+     * both checked as sel=0 (i.e. only stream 1 is drawn). */
+    {
+        bool has1 = !name[0].isEmpty();
+        bool has2 = !name[1].isEmpty();
+        ui->btnSolution1->setChecked(has1 && !has2);
+        ui->btnSolution2->setChecked(!has1 && has2);
+        ui->btnSolution12->setChecked(has1 && has2);
+    }
     ui->btnShowTrack->setChecked(true);
     ui->btnFixHorizontal->setChecked(true);
     ui->btnFixCenter->setChecked(true);

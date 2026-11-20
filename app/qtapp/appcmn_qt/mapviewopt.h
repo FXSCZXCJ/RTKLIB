@@ -23,11 +23,17 @@ public:
     void setMapStrings(int, const QString &, const QString &, const QString &);
     void getMapStrings(int, QString &, QString &, QString &);
 
+    void setMapDatum(int, const QString &);
+    QString getMapDatum(int);
+
+    void setAutoMaxZoom(bool);
+    bool getAutoMaxZoom();
+
 private:
     Ui::MapViewOpt *ui;
 
 protected:
-    QString attrs[6];
+    QString attrs[12];
 
 public slots:
     void showNotes();    

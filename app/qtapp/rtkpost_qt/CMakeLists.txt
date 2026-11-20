@@ -34,12 +34,15 @@ add_executable(rtkpost_qt
     ../appcmn_qt/appcmn_qt.qrc
     ../icon/resources.qrc
 
-)
+
+    rtkpost_qt.rc)
 if(QT_VERSION GREATER_EQUAL 6.5)
-        qt_add_translations(TARGETS rtkpost_qt
-		SOURCE_TARGETS rtkpost_qt
-		INCLUDE_DIRECTORIES . ..appcmn_qt
-        )
+        qt_add_lrelease(rtkpost_qt TS_FILES rtklib_zh_CN.ts
+                        QM_FILES_OUTPUT_VARIABLE rtkpost_qt_qm)
+        # the .qm lives in the build dir, so force a flat resource alias
+        set_source_files_properties(${rtkpost_qt_qm} PROPERTIES
+                        QT_RESOURCE_ALIAS "rtklib_zh_CN.qm")
+        qt_add_resources(rtkpost_qt "i18n" PREFIX "/i18n" FILES ${rtkpost_qt_qm})
 endif()
 target_link_libraries(rtkpost_qt PRIVATE
         rtklib

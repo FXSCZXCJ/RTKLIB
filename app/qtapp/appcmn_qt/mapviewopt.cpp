@@ -3,6 +3,8 @@
 #include <QFile>
 #include <QDir>
 #include <QAction>
+#include <QLineEdit>
+#include <QComboBox>
 
 #include "viewer.h"
 #include "mapviewopt.h"
@@ -51,38 +53,63 @@ QString MapViewOptDialog::getApiKey()
     return ui->lEApiKey->text();
 }
 //---------------------------------------------------------------------------
-void MapViewOptDialog::setMapStrings(int i, const QString &title, const QString &url, const QString &attr)
+void MapViewOptDialog::setMapDatum(int i, const QString & datum)
 {
-    QLineEdit *titles[] = {
-        ui->lEMapTitle1, ui->lEMapTitle2, ui->lEMapTitle3, ui->lEMapTitle4, ui->lEMapTitle5, ui->lEMapTitle6
-    };
-    QLineEdit *urls[] = {
-        ui->lEMapTile1, ui->lEMapTile2, ui->lEMapTile3, ui->lEMapTile4, ui->lEMapTile5, ui->lEMapTile6
-    };
-    if ((i < 0) || (i > 5))
+    QComboBox *cmb = findChild<QComboBox *>(QStringLiteral("cmbDatum%1").arg(i + 1));
+    if (!cmb)
         return;
 
-    titles[i]->setText(title);
-    urls[i]->setText(url);
+    cmb->setCurrentIndex((datum == "bd09") ? 2 : ((datum == "gcj02") ? 1 : 0));
+}
+//---------------------------------------------------------------------------
+QString MapViewOptDialog::getMapDatum(int i)
+{
+    QComboBox *cmb = findChild<QComboBox *>(QStringLiteral("cmbDatum%1").arg(i + 1));
+    if (!cmb)
+        return "wgs84";
+
+    const int idx = cmb->currentIndex();
+    return (idx == 2) ? "bd09" : ((idx == 1) ? "gcj02" : "wgs84");
+}
+//---------------------------------------------------------------------------
+void MapViewOptDialog::setAutoMaxZoom(bool on)
+{
+    ui->chkAutoMaxZoom->setChecked(on);
+}
+//---------------------------------------------------------------------------
+bool MapViewOptDialog::getAutoMaxZoom()
+{
+    return ui->chkAutoMaxZoom->isChecked();
+}
+//---------------------------------------------------------------------------
+void MapViewOptDialog::setMapStrings(int i, const QString &title, const QString &url, const QString &attr)
+{
+    if ((i < 0) || (i > 11))
+        return;
+
+    QLineEdit *titleEdit = findChild<QLineEdit *>(QStringLiteral("lEMapTitle%1").arg(i + 1));
+    QLineEdit *urlEdit   = findChild<QLineEdit *>(QStringLiteral("lEMapTile%1").arg(i + 1));
+    if (!titleEdit || !urlEdit)
+        return;
+
+    titleEdit->setText(title);
+    urlEdit->setText(url);
 
     attrs[i] = attr;
 }
 //---------------------------------------------------------------------------
 void MapViewOptDialog::getMapStrings(int i, QString &title, QString &url, QString &attr)
 {
-    QLineEdit *titles[] = {
-        ui->lEMapTitle1, ui->lEMapTitle2, ui->lEMapTitle3, ui->lEMapTitle4, ui->lEMapTitle5, ui->lEMapTitle6
-    };
-    QLineEdit *urls[] = {
-        ui->lEMapTile1, ui->lEMapTile2, ui->lEMapTile3, ui->lEMapTile4, ui->lEMapTile5, ui->lEMapTile6
-    };
-    if ((i < 0) || (i > 5))
+    if ((i < 0) || (i > 11))
         return;
 
-    title = titles[i]->text();
-    url = urls[i]->text();
+    QLineEdit *titleEdit = findChild<QLineEdit *>(QStringLiteral("lEMapTitle%1").arg(i + 1));
+    QLineEdit *urlEdit   = findChild<QLineEdit *>(QStringLiteral("lEMapTile%1").arg(i + 1));
+    if (!titleEdit || !urlEdit)
+        return;
+
+    title = titleEdit->text();
+    url = urlEdit->text();
     attr = attrs[i];
 }
 //---------------------------------------------------------------------------
-
-

@@ -2,6 +2,7 @@
 * rtkplot_ll.htm: rtkplot leaflet map view
 *
 * history: 2020/11/30 1.1  new
+*          2026/11/10 1.2  WGS-84 -> GCJ-02 for Chinese basemaps (Amap/Tencent)
 *------------------------------------------------------------------------------>
 <html>
 <head>
@@ -17,6 +18,12 @@ var map;
 var marks = [];
 var markh = null;
 var titles = [];
+var wgsLL = [];                 /* original WGS-84 [lat,lon] of each mark */
+var curDatum = 'wgs84';         /* datum of the active basemap layer */
+var centerLL = null;            /* last requested center (WGS-84) */
+var autoMaxZoom = false;        /* open the map at the maximum zoom level */
+var selBasemap = '';            /* basemap chosen last time (by title) */
+var curLayer = null;            /* active tile layer */
 
 var LeafIcon = L.Icon.extend({
     options: {
@@ -34,37 +41,163 @@ var icon1 = new LeafIcon({iconUrl: 'qrc:/image/marker_red.png'});
 // start map tiles
 // end map tiles
 
+/* --- WGS-84 <-> GCJ-02 (Mars coordinates) --------------------------------
+ * RTKLIB solutions are WGS-84.  Amap / Tencent tiles are GCJ-02, so显示前
+ * 必须逐点转换，否则会偏 300-700 m。转换只影响显示，不改变解算数据。
+ *-------------------------------------------------------------------------*/
+function outOfChina(lat, lon) {
+    return (lon < 72.004 || lon > 137.8347 || lat < 0.8293 || lat > 55.8271);
+}
+
+function transformLat(x, y) {
+    var ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y +
+              0.2 * Math.sqrt(Math.abs(x));
+    ret += (20.0 * Math.sin(6.0 * x * Math.PI) +
+            20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
+    ret += (20.0 * Math.sin(y * Math.PI) +
+            40.0 * Math.sin(y / 3.0 * Math.PI)) * 2.0 / 3.0;
+    ret += (160.0 * Math.sin(y / 12.0 * Math.PI) +
+            320 * Math.sin(y * Math.PI / 30.0)) * 2.0 / 3.0;
+    return ret;
+}
+
+function transformLon(x, y) {
+    var ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y +
+              0.1 * Math.sqrt(Math.abs(x));
+    ret += (20.0 * Math.sin(6.0 * x * Math.PI) +
+            20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
+    ret += (20.0 * Math.sin(x * Math.PI) +
+            40.0 * Math.sin(x / 3.0 * Math.PI)) * 2.0 / 3.0;
+    ret += (150.0 * Math.sin(x / 12.0 * Math.PI) +
+            300.0 * Math.sin(x / 30.0 * Math.PI)) * 2.0 / 3.0;
+    return ret;
+}
+
+function wgs2gcj(lat, lon) {
+    if (outOfChina(lat, lon)) return [lat, lon];
+    var dLat = transformLat(lon - 105.0, lat - 35.0);
+    var dLon = transformLon(lon - 105.0, lat - 35.0);
+    var radLat = lat / 180.0 * Math.PI;
+    var magic = Math.sin(radLat);
+    magic = 1 - 0.00669342162296594323 * magic * magic;
+    var sqrtMagic = Math.sqrt(magic);
+    dLat = (dLat * 180.0) / ((6378245.0 * (1 - 0.00669342162296594323)) /
+                             (magic * sqrtMagic) * Math.PI);
+    dLon = (dLon * 180.0) / (6378245.0 / sqrtMagic *
+                             Math.cos(radLat) * Math.PI);
+    return [lat + dLat, lon + dLon];
+}
+
+/* convert a WGS-84 position to the datum of the current basemap */
+/* GCJ-02 -> BD-09 (Baidu) */
+function gcj2bd(lat, lon) {
+    var x = lon, y = lat;
+    var z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * Math.PI * 3000.0 / 180.0);
+    var t = Math.atan2(y, x) + 0.000003 * Math.cos(x * Math.PI * 3000.0 / 180.0);
+    return [z * Math.sin(t) + 0.006, z * Math.cos(t) + 0.0065];
+}
+
+/* WGS-84 -> BD-09 */
+function wgs2bd(lat, lon) {
+    var g = wgs2gcj(lat, lon);
+    return gcj2bd(g[0], g[1]);
+}
+
+function toDisp(lat, lon) {
+    if (curDatum == 'gcj02') return wgs2gcj(lat, lon);
+    if (curDatum == 'bd09')  return wgs2bd(lat, lon);
+    return [lat, lon];
+}
+
+function redrawMarks() {
+    for (var i = 0; i < marks.length; i++) {
+        var p = toDisp(wgsLL[i][0], wgsLL[i][1]);
+        marks[i].setLatLng(p);
+    }
+}
+
+function childListUpdate() {
+}
+
 function init() {
     map = L.map('map');
-    tile1.addTo(map);
-    L.control.layers(basemaps).addTo(map);
+    var chosen = null;
+    if (selBasemap && typeof basemaps !== 'undefined' && basemaps[selBasemap]) {
+        chosen = basemaps[selBasemap];
+    } else if (typeof tile1 !== 'undefined' && tile1) {
+        chosen = tile1;
+    }
+    if (chosen) {
+        chosen.addTo(map);
+        curLayer = chosen;
+        curDatum = chosen.datum ? chosen.datum : 'wgs84';
+        if (typeof basemaps !== 'undefined') {
+            for (var k in basemaps) {
+                if (basemaps[k] === chosen) document.getElementById('layername').value = k;
+            }
+        }
+    }
+    if (typeof basemaps !== 'undefined') {
+        L.control.layers(basemaps).addTo(map);
+    }
     L.control.scale({imperial: false}).addTo(map);
     map.zoomControl.setPosition('bottomright');
+    /* each basemap carries its own datum: re-project everything on switch */
+    map.on('baselayerchange', function (e) {
+        curLayer = e.layer;
+        curDatum = (e.layer && e.layer.datum) ? e.layer.datum : 'wgs84';
+        document.getElementById('layername').value = e.name;
+        if (window.qstate && window.qstate.setBasemap) window.qstate.setBasemap(e.name);
+        redrawMarks();
+        if (centerLL) map.setView(toDisp(centerLL[0], centerLL[1]), map.getZoom());
+    });
     document.getElementById('state').value='1';
 }
 
+function nativeZoom() {
+    if (curLayer && curLayer.options && curLayer.options.maxNativeZoom)
+        return curLayer.options.maxNativeZoom;
+    return map.getMaxZoom();
+}
+
 function SetView(lat,lon,zoom) {
-    map.setView([lat,lon],zoom);
+    if (!map) return;
+    centerLL = [lat,lon];
+    if (autoMaxZoom) zoom = nativeZoom();
+    map.setView(toDisp(lat,lon),zoom);
 }
 
 function SetViewBounds(lat_min, lat_max, lon_min, lon_max) {
-    map.fitBounds([lat_min, lon_min], [lat_max, lon_max], padding=5);
+    if (!map) return;
+    centerLL = [(lat_min + lat_max) / 2, (lon_min + lon_max) / 2];
+    if (autoMaxZoom) {
+        map.setView(toDisp(centerLL[0], centerLL[1]), nativeZoom());
+        return;
+    }
+    var a = toDisp(lat_min, lon_min);
+    var b = toDisp(lat_max, lon_max);
+    map.fitBounds([a, b], {padding: [5, 5]});
 }
 
 function SetCent(lat,lon) {
-    map.setView([lat,lon],map.getZoom());
+    if (!map) return;
+    centerLL = [lat,lon];
+    map.setView(toDisp(lat,lon),map.getZoom());
 }
 
 function ZoomIn() {
+    if (!map) return;
     map.setZoom(map.getZoom()+1);
 }
 
 function ZoomOut() {
+    if (!map) return;
     map.setZoom(map.getZoom()-1);
 }
 
 function AddMark(lat,lon,title,msg) {
-    var mark = L.marker([lat,lon],{opacity: 0.8}).addTo(map);
+    if (!map) return;
+    var mark = L.marker(toDisp(lat,lon),{opacity: 0.8}).addTo(map);
     var popup = L.popup().setContent(msg);
     if (title=='SOL1') {
         mark.setIcon(icon0);
@@ -73,13 +206,15 @@ function AddMark(lat,lon,title,msg) {
     }
     mark.bindPopup(popup);
     marks.push(mark);
+    wgsLL.push([lat,lon]);
     titles.push(title);
 }
 
 function PosMark(lat,lon,title) {
     for (var i in marks) {
         if (titles[i]==title) {
-            marks[i].setLatLng([lat,lon]);
+            wgsLL[i] = [lat,lon];
+            marks[i].setLatLng(toDisp(lat,lon));
             break;
         }
     }
@@ -102,13 +237,17 @@ function HideMark(title) {
         }
     }
 }
+
 function ClearMark() {
     for (var i in marks) {
         map.removeLayer(marks[i]);
     }
     marks.length = 0;
+    wgsLL.length = 0;
+    titles.length = 0;
     markh = null;
 }
+
 function HighlightMark(title) {
     if (markh) {
         markh.setIcon(icon1);
@@ -127,5 +266,6 @@ function HighlightMark(title) {
 <body style="margin: 0;"; scroll="no"; onload="init()">
   <div id="map" style="height: 100%; width: 100%;"> </div>
   <input id="state" type="hidden" value="0">
+  <input id="layername" type="hidden" value="">
 </body>
 </html>
